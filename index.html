@@ -34,7 +34,7 @@ html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;cursor:none;transition:var(--trans)}
 
 /* CURSOR */
-#cursor-svg{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .15s;will-change:left,top}
+#cursor-svg{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:left,top}
 .cursor-trail{position:fixed;pointer-events:none;z-index:9997;border-radius:50%;transform:translate(-50%,-50%);will-change:left,top,opacity}
 
 /* CANVAS */
@@ -93,9 +93,13 @@ section{position:relative;z-index:1;padding:8rem 2rem}
 /* ABOUT */
 .about-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:5rem;align-items:center;margin-top:4rem}
 .avatar-frame{width:280px;height:280px;border-radius:24px;position:relative;margin:0 auto;animation:float 4s ease-in-out infinite}
-.avatar-inner{width:100%;height:100%;border-radius:24px;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:6rem;border:1px solid var(--card-b);position:relative;overflow:hidden}
+.avatar-inner{width:100%;height:100%;border-radius:24px;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:6rem;border:1px solid var(--card-b);position:relative;overflow:hidden;cursor:none}
 .avatar-inner::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,255,.05),rgba(124,58,237,.05))}
 .avatar-glow{position:absolute;inset:-2px;border-radius:26px;background:linear-gradient(135deg,var(--c),var(--c2),var(--c));opacity:.4;z-index:-1;animation:rotateBorder 4s linear infinite}
+.avatar-overlay{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;background:rgba(0,0,0,.6);border-radius:24px;opacity:0;transition:opacity .3s;backdrop-filter:blur(3px)}
+.avatar-frame:hover .avatar-overlay{opacity:1}
+.avatar-overlay span:first-child{font-size:1.8rem}
+.avatar-overlay span:last-child{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--c);letter-spacing:2px}
 .about-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.5rem}
 .stat-card{background:var(--card);border:1px solid var(--card-b);border-radius:14px;padding:1.2rem;text-align:center;backdrop-filter:blur(10px);transition:all .3s}
 .stat-card:hover{border-color:var(--c);transform:translateY(-4px);box-shadow:var(--glow2)}
@@ -190,7 +194,6 @@ footer span{color:var(--c)}
 .reveal-delay-3{transition-delay:.3s}
 .reveal-delay-4{transition-delay:.4s}
 
-/* ANIMATIONS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:.8}}
@@ -211,13 +214,9 @@ footer span{color:var(--c)}
 <!-- CREATIVE CURSOR -->
 <svg id="cursor-svg" width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
   <g id="cursor-inner">
-    <!-- Rotating outer diamond -->
     <polygon id="cursor-diamond" points="20,4 36,20 20,36 4,20" fill="none" stroke="#00f5ff" stroke-width="1.2" opacity="0.7"/>
-    <!-- Inner rotating square -->
     <rect id="cursor-square" x="14" y="14" width="12" height="12" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.8" transform="rotate(45,20,20)"/>
-    <!-- Center dot -->
     <circle cx="20" cy="20" r="2.5" fill="#00f5ff" opacity="1"/>
-    <!-- Crosshair lines -->
     <line x1="20" y1="0" x2="20" y2="10" stroke="#00f5ff" stroke-width=".8" opacity=".4"/>
     <line x1="20" y1="30" x2="20" y2="40" stroke="#00f5ff" stroke-width=".8" opacity=".4"/>
     <line x1="0" y1="20" x2="10" y2="20" stroke="#00f5ff" stroke-width=".8" opacity=".4"/>
@@ -265,10 +264,22 @@ footer span{color:var(--c)}
     <h2 class="section-title reveal">Who I <span class="accent">Am</span></h2>
     <div class="about-grid">
       <div class="about-visual reveal reveal-delay-1">
-        <div class="avatar-frame">
-          <div class="avatar-inner">👨‍💻</div>
+
+        <!-- AVATAR with photo upload -->
+        <div class="avatar-frame" id="avatarFrame" title="Click to upload your photo">
+          <div class="avatar-inner" id="avatarInner">
+            <span id="avatarEmoji" style="position:relative;z-index:1">👨‍💻</span>
+            <img id="avatarImg" src="" alt="Narendra G S"
+              style="display:none;width:100%;height:100%;object-fit:cover;border-radius:24px;position:absolute;inset:0;z-index:1"/>
+            <div class="avatar-overlay">
+              <span>📷</span>
+              <span id="avatarLabel">UPLOAD PHOTO</span>
+            </div>
+          </div>
           <div class="avatar-glow"></div>
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none"/>
         </div>
+
         <div class="about-stats">
           <div class="stat-card reveal reveal-delay-2"><div class="stat-num">10+</div><div class="stat-lbl">Projects</div></div>
           <div class="stat-card reveal reveal-delay-3"><div class="stat-num">3rd</div><div class="stat-lbl">Year CS</div></div>
@@ -387,8 +398,8 @@ footer span{color:var(--c)}
           </div>
         </div>
         <div class="social-links">
-          <a href="https://github.com/naren1003" class="social-link" title="GitHub">GH</a>
-          <a href="https://www.linkedin.com/in/narendra-g-s/" class="social-link" title="LinkedIn">in</a>
+          <a href="https://github.com/naren1003" target="_blank" class="social-link" title="GitHub">GH</a>
+          <a href="https://www.linkedin.com/in/narendra-g-s/" target="_blank" class="social-link" title="LinkedIn">in</a>
         </div>
       </div>
       <div class="contact-form reveal reveal-delay-2">
@@ -413,57 +424,60 @@ const curSvg=document.getElementById('cursor-svg');
 const diamond=document.getElementById('cursor-diamond');
 const square=document.getElementById('cursor-square');
 let mx=0,my=0,angle=0,scale=1,targetScale=1;
-
-// Trail particles
 const TRAIL=12;const trails=[];
 for(let i=0;i<TRAIL;i++){
   const t=document.createElement('div');
   t.className='cursor-trail';
-  const s=6-i*.4;const a=1-i/TRAIL;
-  t.style.cssText=`width:${s}px;height:${s}px;background:rgba(0,245,255,${a*.5});box-shadow:0 0 ${s*2}px rgba(0,245,255,${a*.6})`;
+  const s=6-i*.4,a=1-i/TRAIL;
+  t.style.cssText=`width:${s}px;height:${s}px;background:rgba(0,245,255,${a*.5});box-shadow:0 0 ${s*2}px rgba(0,245,255,${a*.6});position:fixed;pointer-events:none;z-index:9997;border-radius:50%;transform:translate(-50%,-50%)`;
   document.body.appendChild(t);
   trails.push({el:t,x:0,y:0});
 }
-
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
-
-// Hover effects
 document.querySelectorAll('a,button,.skill-cat,.project-card,.stat-card,.social-link,.info-row').forEach(el=>{
   el.addEventListener('mouseenter',()=>{targetScale=1.6});
   el.addEventListener('mouseleave',()=>{targetScale=1});
 });
-
-// Animate cursor
 (function animCursor(){
-  angle+=1.2;
-  scale+=(targetScale-scale)*.12;
-  curSvg.style.left=mx+'px';
-  curSvg.style.top=my+'px';
+  angle+=1.2;scale+=(targetScale-scale)*.12;
+  curSvg.style.left=mx+'px';curSvg.style.top=my+'px';
   curSvg.style.transform=`translate(-50%,-50%) scale(${scale})`;
   diamond.setAttribute('transform',`rotate(${angle},20,20)`);
   square.setAttribute('transform',`rotate(${-angle*1.5},20,20)`);
-
-  // Update trails with lag
-  trails[0].x+=(mx-trails[0].x)*.35;
-  trails[0].y+=(my-trails[0].y)*.35;
+  trails[0].x+=(mx-trails[0].x)*.35;trails[0].y+=(my-trails[0].y)*.35;
   for(let i=1;i<TRAIL;i++){
     trails[i].x+=(trails[i-1].x-trails[i].x)*.35;
     trails[i].y+=(trails[i-1].y-trails[i].y)*.35;
-    trails[i].el.style.left=trails[i].x+'px';
-    trails[i].el.style.top=trails[i].y+'px';
+    trails[i].el.style.left=trails[i].x+'px';trails[i].el.style.top=trails[i].y+'px';
   }
-  trails[0].el.style.left=trails[0].x+'px';
-  trails[0].el.style.top=trails[0].y+'px';
-
+  trails[0].el.style.left=trails[0].x+'px';trails[0].el.style.top=trails[0].y+'px';
   requestAnimationFrame(animCursor);
 })();
+
+// ====== AVATAR UPLOAD ======
+const avatarFrame=document.getElementById('avatarFrame');
+const avatarUpload=document.getElementById('avatarUpload');
+const avatarImg=document.getElementById('avatarImg');
+const avatarEmoji=document.getElementById('avatarEmoji');
+const avatarLabel=document.getElementById('avatarLabel');
+avatarFrame.addEventListener('click',()=>avatarUpload.click());
+avatarUpload.addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    avatarImg.src=ev.target.result;
+    avatarImg.style.display='block';
+    avatarEmoji.style.display='none';
+    avatarLabel.textContent='CHANGE PHOTO';
+  };
+  reader.readAsDataURL(file);
+});
 
 // ====== THEME TOGGLE ======
 const html=document.documentElement,toggleBtn=document.getElementById('themeToggle');
 let dark=true;
 toggleBtn.addEventListener('click',()=>{
   dark=!dark;html.setAttribute('data-theme',dark?'dark':'light');
-  document.querySelectorAll('.tag.cyan').forEach(t=>{t.style.color=''});
   initP();
 });
 
@@ -529,7 +543,7 @@ window.addEventListener('scroll',()=>{document.getElementById('navbar').style.ba
 document.querySelectorAll('.project-card').forEach(card=>{
   card.style.cursor='none';
   card.addEventListener('click',e=>{
-    if(e.target.closest('.proj-link'))return; // let individual links handle themselves
+    if(e.target.closest('.proj-link'))return;
     const url=card.getAttribute('data-url');
     if(url&&url!=='#')window.open(url,'_blank');
   });
