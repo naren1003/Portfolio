@@ -415,7 +415,7 @@ footer span{color:var(--c)}
 </section>
 
 <footer>
-  <p>Designed & Built with <span>♥</span> by <span>Narendra G S</span> · 2025</p>
+  <p>Designed & Built with <span>♥</span> by <span>Narendra G S</span> · 2026</p>
 </footer>
 
 <script>
@@ -555,22 +555,69 @@ document.querySelectorAll('.skill-cat').forEach(c=>{
   c.addEventListener('mouseleave',()=>{c.style.transform=''});
 });
 
-// ====== CONTACT FORM (mailto) ======
-document.getElementById('formSubmit').addEventListener('click',()=>{
-  const name=document.getElementById('f-name').value.trim();
-  const email=document.getElementById('f-email').value.trim();
-  const subject=document.getElementById('f-subject').value.trim()||'Portfolio Inquiry';
-  const msg=document.getElementById('f-msg').value.trim();
-  const status=document.getElementById('form-status');
-  if(!name||!email||!msg){status.style.color='#f87171';status.textContent='⚠ Please fill in all required fields.';return}
-  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRegex.test(email)){status.style.color='#f87171';status.textContent='⚠ Please enter a valid email address.';return}
-  const body=`Hi Narendra,\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${msg}\n\n— Sent from your portfolio`;
-  const mailto=`mailto:narenskills@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href=mailto;
-  status.style.color='var(--c)';
-  status.textContent='✦ Opening your email client...';
-  setTimeout(()=>{status.textContent='';document.getElementById('f-name').value='';document.getElementById('f-email').value='';document.getElementById('f-subject').value='';document.getElementById('f-msg').value=''},3000);
+// ====== CONTACT FORM (Web3Forms — real email delivery) ======
+const WEB3FORMS_KEY = '2e07290f-8b1e-4e73-a63a-cbf6bc378fef';
+
+document.getElementById('formSubmit').addEventListener('click', async () => {
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const subject = document.getElementById('f-subject').value.trim() || 'Portfolio Inquiry';
+  const msg     = document.getElementById('f-msg').value.trim();
+  const status  = document.getElementById('form-status');
+  const btn     = document.getElementById('formSubmit');
+
+  if (!name || !email || !msg) {
+    status.style.color = '#f87171';
+    status.textContent = '⚠ Please fill in all required fields.';
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    status.style.color = '#f87171';
+    status.textContent = '⚠ Please enter a valid email address.';
+    return;
+  }
+
+  // Sending state
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  status.style.color = 'var(--c)';
+  status.textContent = '✦ Sending your message...';
+
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        name, email, subject,
+        message: msg,
+        from_name: 'Portfolio Contact Form',
+      }),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      status.style.color = '#4ade80';
+      status.textContent = '✦ Message sent! I\'ll reply within 24 hours.';
+      document.getElementById('f-name').value = '';
+      document.getElementById('f-email').value = '';
+      document.getElementById('f-subject').value = '';
+      document.getElementById('f-msg').value = '';
+    } else {
+      throw new Error(data.message || 'Submission failed');
+    }
+  } catch (err) {
+    status.style.color = '#f87171';
+    status.textContent = '⚠ Failed to send. Please email me directly at narenskills@gmail.com';
+    console.error(err);
+  } finally {
+    btn.textContent = 'Send Message ✦';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    setTimeout(() => { status.textContent = ''; }, 5000);
+  }
 });
 
 // ====== RESUME DOWNLOAD ======
